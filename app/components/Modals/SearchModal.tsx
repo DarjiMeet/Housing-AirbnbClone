@@ -19,6 +19,8 @@ enum STEPS{
     INFO = 2
 }
 
+
+
 const SearchModal = ()=>{
     const router = useRouter()
     const params = useSearchParams()
