@@ -1,66 +1,77 @@
 import { NextResponse } from "next/server";
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import prisma from "@/app/libs/prismadb"
+import prisma from "@/app/libs/prismadb";
 
-
-interface Iparams{
-    listingId ?: string
+interface Iparams {
+    listingId?: string;
 }
 
-export async function POST(request:Request, {params}:{params:Iparams}) {
-    const currentUser = await getCurrentUser()
+export async function POST(request: Request, { params }: { params: Iparams }) {
+    const currentUser = await getCurrentUser();
 
-    if(!currentUser){
-        return NextResponse.error()
+    if (!currentUser) {
+        return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    const {listingId} = params
+    const { listingId } = params;
 
-    if(!listingId || typeof listingId !== 'string'){
-        throw new Error('Invalid ID')
+    if (!listingId || typeof listingId !== "string") {
+        return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
     }
 
     let favouriteIds = [...(currentUser.favoriteIds || [])];
 
-    favouriteIds.push(listingId)
+    if (!favouriteIds.includes(listingId)) {
+        favouriteIds.push(listingId);
+    }
 
-    const user = await prisma.user.update({
-        where:{
-            id: currentUser.id
-        },
-        data:{
-            favoriteIds : favouriteIds
-        }
-    })
+    try {
+        const user = await prisma.user.update({
+            where: {
+                id: currentUser.id,
+            },
+            data: {
+                favoriteIds: favouriteIds,
+            },
+        });
 
-    return NextResponse.json(user)
+        return NextResponse.json(user);
+    } catch (error) {
+        console.error("Failed to update favorites:", error);
+        return NextResponse.json({ error: "Failed to update favorites" }, { status: 500 });
+    }
 }
 
-export async function DELETE(request:Request , {params}:{params:Iparams}) {
-    const currentUser = await getCurrentUser()
+export async function DELETE(request: Request, { params }: { params: Iparams }) {
+    const currentUser = await getCurrentUser();
 
-    if(!currentUser){
-        return NextResponse.error()
+    if (!currentUser) {
+        return NextResponse.json({ error: "User not authenticated" }, { status: 401 });
     }
 
-    const{listingId} = params
+    const { listingId } = params;
 
-    if(!listingId || typeof listingId !== 'string'){
-        throw new Error('Invalid ID')
+    if (!listingId || typeof listingId !== "string") {
+        return NextResponse.json({ error: "Invalid listing ID" }, { status: 400 });
     }
 
-    let favouriteIds = [...(currentUser.favoriteIds || null)]
+    let favouriteIds = [...(currentUser.favoriteIds || [])];
 
-    favouriteIds = favouriteIds.filter((Id) => Id !== listingId)
+    favouriteIds = favouriteIds.filter((id) => id !== listingId);
 
-    const user = await prisma.user.update({
-        where:{
-            id: currentUser.id
-        },
-        data:{
-            favoriteIds: favouriteIds
-        }
-    })
+    try {
+        const user = await prisma.user.update({
+            where: {
+                id: currentUser.id,
+            },
+            data: {
+                favoriteIds: favouriteIds,
+            },
+        });
 
-    return NextResponse.json(user)
+        return NextResponse.json(user);
+    } catch (error) {
+        console.error("Failed to update favorites:", error);
+        return NextResponse.json({ error: "Failed to update favorites" }, { status: 500 });
+    }
 }
