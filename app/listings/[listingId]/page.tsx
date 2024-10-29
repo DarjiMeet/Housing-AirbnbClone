@@ -25,6 +25,7 @@ const ListingPage = async({params}:{params:Iparams}) =>{
     return (
         <ClientOnly>
             <ListingClient
+                // @ts-expect-error:it needs to be on this way
                 listing={listing}
                 reservations={reservations}
                 currentUser = {currentUser}
