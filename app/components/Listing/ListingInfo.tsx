@@ -6,6 +6,7 @@ import { IconType } from "react-icons"
 import Avatar from "../Avatar"
 import ListingCategory from "./ListingCategory"
 import dynamic from "next/dynamic"
+import { stringify } from "querystring"
 
 const Map = dynamic(()=>import("../Map"),{
     ssr:false
@@ -54,6 +55,7 @@ const ListingInfo:React.FC<ListingInfoProps> =({
                     "
                 >
                     <div>Hosted by {user?.name}</div>
+                     {/* @ts-expect-error: Its needed to be this way*/}
                     <Avatar src={user?.image}/>
 
                 </div>
