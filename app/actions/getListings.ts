@@ -10,6 +10,7 @@ export interface IListings{
     locationValue?:string
     category?:string
 }
+
 export default async function getListings(params:IListings){
     try {
         const {
